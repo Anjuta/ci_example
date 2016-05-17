@@ -1,156 +1,91 @@
-http client/server for asyncio
-==============================
+pep8 - Python style guide checker
+=================================
 
-.. image:: https://raw.github.com/KeepSafe/aiohttp/master/docs/_static/aiohttp-icon-128x128.png
-  :height: 64px
-  :width: 64px
-  :alt: aiohttp logo
+pep8 is a tool to check your Python code against some of the style
+conventions in `PEP 8`_.
 
-.. image:: https://travis-ci.org/KeepSafe/aiohttp.svg?branch=master
-  :target:  https://travis-ci.org/KeepSafe/aiohttp
-  :align: right
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
-.. image:: https://coveralls.io/repos/KeepSafe/aiohttp/badge.svg?branch=master&service=github
-  :target:  https://coveralls.io/github/KeepSafe/aiohttp?branch=master
-  :align: right
-
-.. image:: https://badge.fury.io/py/aiohttp.svg
-    :target: https://badge.fury.io/py/aiohttp
 
 Features
 --------
 
-- Supports both client and server side of HTTP protocol.
-- Supports both client and server Web-Sockets out-of-the-box.
-- Web-server has middlewares and pluggable routing.
+* Plugin architecture: Adding new checks is easy.
 
+* Parseable output: Jump to error location in your editor.
 
-Getting started
----------------
+* Small: Just one Python file, requires only stdlib. You can use just
+  the pep8.py file for this purpose.
 
-Client
-^^^^^^
+* Comes with a comprehensive test suite.
 
-To retrieve something from the web:
-
-.. code-block:: python
-
-  import aiohttp
-  import asyncio
-
-  async def get_body(client, url):
-      async with client.get(url) as response:
-          return await response.read()
-
-  if __name__ == '__main__':
-      loop = asyncio.get_event_loop()
-      client = aiohttp.ClientSession(loop=loop)
-      raw_html = loop.run_until_complete(get_body(client, 'http://python.org'))
-      print(raw_html)
-      client.close()
-
-
-If you want to use timeouts for aiohttp client please use standard
-asyncio approach:
-
-.. code-block:: python
-
-   yield from asyncio.wait_for(client.get(url), 10)
-
-
-Server
-^^^^^^
-
-This is simple usage example:
-
-.. code-block:: python
-
-    import asyncio
-    from aiohttp import web
-
-    async def handle(request):
-        name = request.match_info.get('name', "Anonymous")
-        text = "Hello, " + name
-        return web.Response(body=text.encode('utf-8'))
-
-    async def wshandler(request):
-        ws = web.WebSocketResponse()
-        await ws.prepare(request)
-
-        async for msg in ws:
-            if msg.tp == web.MsgType.text:
-                ws.send_str("Hello, {}".format(msg.data))
-            elif msg.tp == web.MsgType.binary:
-                ws.send_bytes(msg.data)
-            elif msg.tp == web.MsgType.close:
-                break
-
-        return ws
-
-
-    async def init(loop):
-        app = web.Application(loop=loop)
-        app.router.add_route('GET', '/echo', wshandler)
-        app.router.add_route('GET', '/{name}', handle)
-
-        srv = await loop.create_server(app.make_handler(),
-                                            '127.0.0.1', 8080)
-        print("Server started at http://127.0.0.1:8080")
-        return srv
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(init(loop))
-    loop.run_forever()
-
-
-Note: examples are written for Python 3.5+ and utilize PEP-492 aka
-async/await.  If you are using Python 3.4 please replace ``await`` with
-``yield from`` and ``async def`` with ``@coroutine`` e.g.::
-
-    async def coro(...):
-        ret = await f()
-
-shoud be replaced by::
-
-    @asyncio.coroutine
-    def coro(...):
-        ret = yield from f()
-
-Documentation
--------------
-
-http://aiohttp.readthedocs.org/
-
-Discussion list
----------------
-
-*aio-libs* google group: https://groups.google.com/forum/#!forum/aio-libs
-
-Requirements
+Installation
 ------------
 
-- Python >= 3.4.1
-- chardet https://pypi.python.org/pypi/chardet
+You can install, upgrade, uninstall pep8.py with these commands::
 
-Optionally you may install cChardet library:
-https://pypi.python.org/pypi/cchardet/1.0.0
+  $ pip install pep8
+  $ pip install --upgrade pep8
+  $ pip uninstall pep8
+
+There's also a package for Debian/Ubuntu, but it's not always the
+latest version.
+
+Example usage and output
+------------------------
+
+::
+
+  $ pep8 --first optparse.py
+  optparse.py:69:11: E401 multiple imports on one line
+  optparse.py:77:1: E302 expected 2 blank lines, found 1
+  optparse.py:88:5: E301 expected 1 blank line, found 0
+  optparse.py:222:34: W602 deprecated form of raising exception
+  optparse.py:347:31: E211 whitespace before '('
+  optparse.py:357:17: E201 whitespace after '{'
+  optparse.py:472:29: E221 multiple spaces before operator
+  optparse.py:544:21: W601 .has_key() is deprecated, use 'in'
+
+You can also make pep8.py show the source code for each error, and
+even the relevant text from PEP 8::
+
+  $ pep8 --show-source --show-pep8 testsuite/E40.py
+  testsuite/E40.py:2:10: E401 multiple imports on one line
+  import os, sys
+           ^
+      Imports should usually be on separate lines.
+
+      Okay: import os\nimport sys
+      E401: import sys, os
 
 
-License
--------
+Or you can display how often each error was found::
 
-``aiohttp`` is offered under the Apache 2 license.
+  $ pep8 --statistics -qq Python-2.5/Lib
+  232     E201 whitespace after '['
+  599     E202 whitespace before ')'
+  631     E203 whitespace before ','
+  842     E211 whitespace before '('
+  2531    E221 multiple spaces before operator
+  4473    E301 expected 1 blank line, found 0
+  4006    E302 expected 2 blank lines, found 1
+  165     E303 too many blank lines (4)
+  325     E401 multiple imports on one line
+  3615    E501 line too long (82 characters)
+  612     W601 .has_key() is deprecated, use 'in'
+  1188    W602 deprecated form of raising exception
 
+Links
+-----
 
-Source code
-------------
+.. image:: https://api.travis-ci.org/PyCQA/pep8.png?branch=master
+   :target: https://travis-ci.org/PyCQA/pep8
+   :alt: Build status
 
-The latest developer version is available in a github repository:
-https://github.com/KeepSafe/aiohttp
+.. image:: https://pypip.in/wheel/pep8/badge.png?branch=master
+   :target: https://pypi.python.org/pypi/pep8
+   :alt: Wheel Status
 
-Benchmarks
-----------
+* `Read the documentation <http://pep8.readthedocs.org/>`_
 
-If you are interested in by efficiency, AsyncIO community maintains a
-list of benchmarks on the official wiki:
-https://github.com/python/asyncio/wiki/Benchmarks
+* `Fork me on GitHub <http://github.com/PyCQA/pep8>`_

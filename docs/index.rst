@@ -1,178 +1,69 @@
-.. aiohttp documentation master file, created by
-   sphinx-quickstart on Wed Mar  5 12:35:35 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. pep8 documentation master file
 
-aiohttp
-=======
+pep8's documentation
+====================
 
-HTTP client/server for :term:`asyncio` (:pep:`3156`).
+*Python style guide checker*
 
-.. _GitHub: https://github.com/KeepSafe/aiohttp
-.. _Freenode: http://freenode.net
+pep8 is a tool to check your Python code against some of the style
+conventions in `PEP 8`_.
 
-
-Features
---------
-
-- Supports both :ref:`aiohttp-client` and :ref:`HTTP Server <aiohttp-web>`.
-- Supports both :ref:`Server WebSockets <aiohttp-web-websockets>` and
-  :ref:`Client WebSockets <aiohttp-client-websockets>` out-of-the-box.
-- Web-server has :ref:`aiohttp-web-middlewares`,
-  :ref:`aiohttp-web-signals` and pluggable routing.
-
-Library Installation
---------------------
-
-::
-
-   $ pip install aiohttp
-
-You may want to install *optional* :term:`cchardet` library as faster
-replacement for :term:`chardet`::
-
-   $ pip install cchardet
-
-Getting Started
----------------
-
-Client example::
-
-    import asyncio
-    import aiohttp
-
-    async def fetch_page(client, url):
-        async with client.get(url) as response:
-            assert response.status == 200
-            return await response.read()
-
-    loop = asyncio.get_event_loop()
-    client = aiohttp.ClientSession(loop=loop)
-    content = loop.run_until_complete(
-        fetch_page(client, 'http://python.org'))
-    print(content)
-    client.close()
-
-Server example::
-
-    import asyncio
-    from aiohttp import web
-
-    async def handle(request):
-        name = request.match_info.get('name', "Anonymous")
-        text = "Hello, " + name
-        return web.Response(body=text.encode('utf-8'))
-
-    async def init(loop):
-        app = web.Application(loop=loop)
-        app.router.add_route('GET', '/{name}', handle)
-
-        srv = await loop.create_server(app.make_handler(),
-                                            '127.0.0.1', 8080)
-        print("Server started at http://127.0.0.1:8080")
-        return srv
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(init(loop))
-    try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-
-.. note::
-
-   Throughout this documentation, examples utilize the `async/await` syntax
-   introduced by :pep:`492` that is only valid for Python 3.5+.
-
-   If you are using Python 3.4, please replace ``await`` with
-   ``yield from`` and ``async def`` with a ``@coroutine`` decorator.
-   For example, this::
-
-       async def coro(...):
-           ret = await f()
-
-   should be replaced by::
-
-       @asyncio.coroutine
-       def coro(...):
-           ret = yield from f()
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
 
-Source code
------------
-
-The project is hosted on GitHub_
-
-Please feel free to file an issue on the `bug tracker
-<https://github.com/KeepSafe/aiohttp/issues>`_ if you have found a bug
-or have some suggestion in order to improve the library.
-
-The library uses `Travis <https://travis-ci.org/KeepSafe/aiohttp>`_ for
-Continuous Integration.
-
-
-Dependencies
-------------
-
-- Python Python 3.4.1+
-- *chardet* library
-- *Optional* :term:`cchardet` library as faster replacement for
-  :term:`chardet`.
-
-  Install it explicitly via::
-
-     $ pip install cchardet
-
-
-Discussion list
----------------
-
-*aio-libs* google group: https://groups.google.com/forum/#!forum/aio-libs
-
-Feel free to post your questions and ideas here.
-
-Contributing
-------------
-
-Please read the :ref:`instructions for contributors<aiohttp-contributing>`
-before making a Pull Request.
-
-
-Authors and License
--------------------
-
-The ``aiohttp`` package is written mostly by Nikolay Kim and Andrew Svetlov.
-
-It's *Apache 2* licensed and freely available.
-
-Feel free to improve this package and send a pull request to GitHub_.
-
-Contents
---------
+Contents:
 
 .. toctree::
+   :maxdepth: 2
 
-   client
-   client_reference
-   web
-   web_reference
-   server
-   multidict
-   multipart
-   api
-   logging
-   gunicorn
-   contributing
-   changes
-   Python 3.3 support <python33>
-   glossary
+   intro
+   advanced
+   API <api>
+   developer
+
+* Online documentation: http://pep8.readthedocs.org/
+* Source code and issue tracker: https://github.com/pycqa/pep8
+
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
 
-.. disqus::
+Credits
+=======
+
+Created by Johann C. Rocholl.
+
+Maintained by Florent Xicluna and Ian Lee.
+
+
+.. _license:
+
+License
+=======
+
+The ``pep8`` library is provided under the terms and conditions of the
+Expat license::
+
+  # Permission is hereby granted, free of charge, to any person
+  # obtaining a copy of this software and associated documentation files
+  # (the "Software"), to deal in the Software without restriction,
+  # including without limitation the rights to use, copy, modify, merge,
+  # publish, distribute, sublicense, and/or sell copies of the Software,
+  # and to permit persons to whom the Software is furnished to do so,
+  # subject to the following conditions:
+  #
+  # The above copyright notice and this permission notice shall be
+  # included in all copies or substantial portions of the Software.
+  #
+  # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  # BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  # SOFTWARE.

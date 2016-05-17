@@ -1,85 +1,88 @@
-.. _aiohttp-api:
+========
+pep8 API
+========
 
-Helpers API
-===========
+.. module:: pep8
 
-All public names from submodules
-``errors``, ``multipart``, ``parsers``, ``protocol``, ``utils``,
-``websocket`` and ``wsgi`` are exported into ``aiohttp``
-namespace.
+The library provides classes which are usable by third party tools.
+
+.. contents::
+   :local:
 
 
-aiohttp.errors module
----------------------
+.. _main_classes:
 
-.. automodule:: aiohttp.errors
-    :members:
-    :undoc-members:
-    :show-inheritance:
+Checker Classes
+---------------
 
-aiohttp.helpers module
-----------------------
+The :class:`StyleGuide` class is used to configure a style guide checker
+instance to check multiple files.
 
-.. automodule:: aiohttp.helpers
-    :members:
-    :undoc-members:
-    :exclude-members: BasicAuth
-    :show-inheritance:
+The :class:`Checker` class can be used to check a single file.
 
-aiohttp.multipart module
-------------------------
 
-.. automodule:: aiohttp.multipart
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. autoclass:: StyleGuide(parse_argv=False, config_file=None, parser=None, paths=None, report=None, **kwargs)
 
-aiohttp.parsers module
-----------------------
+   .. automethod:: init_report(reporter=None)
+   .. automethod:: check_files(paths=None)
+   .. automethod:: input_file(filename, lines=None, expected=None, line_offset=0)
+   .. automethod:: input_dir(dirname)
+   .. automethod:: excluded(filename, parent=None)
+   .. automethod:: ignore_code(code)
+   .. automethod:: get_checks(argument_name)
 
-.. automodule:: aiohttp.parsers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. autoclass:: Checker(filename=None, lines=None, report=None, **kwargs)
 
-aiohttp.protocol module
------------------------
+   .. automethod:: readline
+   .. automethod:: run_check(check, argument_names)
+   .. automethod:: check_physical(line)
+   .. automethod:: build_tokens_line
+   .. automethod:: check_logical
+   .. automethod:: check_ast
+   .. automethod:: generate_tokens
+   .. automethod:: check_all(expected=None, line_offset=0)
 
-.. automodule:: aiohttp.protocol
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
-aiohttp.signals module
-----------------------
+.. _report_classes:
 
-.. automodule:: aiohttp.signals
-    :members:
-    :undoc-members:
-    :show-inheritance:
+Report Classes
+--------------
 
-aiohttp.streams module
-----------------------
+.. autoclass:: BaseReport(options)
 
-.. automodule:: aiohttp.streams
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   .. automethod:: start
+   .. automethod:: stop
+   .. automethod:: init_file(filename, lines, expected, line_offset)
+   .. automethod:: increment_logical_line
+   .. automethod:: error(line_number, offset, text, check)
+   .. automethod:: get_file_results
+   .. automethod:: get_count(prefix='')
+   .. automethod:: get_statistics(prefix='')
+   .. automethod:: print_statistics(prefix='')
+   .. automethod:: print_benchmark
 
-aiohttp.websocket module
-------------------------
+.. autoclass:: FileReport
 
-.. automodule:: aiohttp.websocket
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. autoclass:: StandardReport
 
-aiohttp.wsgi module
--------------------
+.. autoclass:: DiffReport
 
-.. automodule:: aiohttp.wsgi
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
-.. disqus::
+Utilities
+---------
+
+.. autofunction:: expand_indent(line)
+.. autofunction:: mute_string(text)
+.. autofunction:: read_config(options, args, arglist, parser)
+.. autofunction:: process_options(arglist=None, parse_argv=False, config_file=None)
+.. autofunction:: register_check(func_or_cls, codes=None)
+
+..
+  These ones are used internally, but they don't need advertising
+  .. autofunction:: readlines(filename)
+  .. autofunction:: isidentifier(word)
+  .. autofunction:: stdin_get_value()
+  .. autofunction:: parse_udiff(diff, patterns=None, parent='.')
+  .. autofunction:: filename_match(filename, patterns, default=True)
+  .. autofunction:: get_parser(prog='pep8', version=pep8.__version__)
+  .. autofunction:: init_checks_registry()

@@ -1,116 +1,56 @@
-import codecs
-import os
-import re
-import sys
-from setuptools import setup, Extension
-from distutils.errors import (CCompilerError, DistutilsExecError,
-                              DistutilsPlatformError)
-from distutils.command.build_ext import build_ext
-from setuptools.command.test import test as TestCommand
+# -*- coding: utf-8 -*-
+from __future__ import with_statement
+from setuptools import setup
 
 
-try:
-    from Cython.Build import cythonize
-    USE_CYTHON = True
-except ImportError:
-    USE_CYTHON = False
-
-ext = '.pyx' if USE_CYTHON else '.c'
-
-extensions = [Extension('aiohttp._multidict', ['aiohttp/_multidict' + ext]),
-              Extension('aiohttp._websocket', ['aiohttp/_websocket' + ext])]
+def get_version():
+    with open('pep8.py') as f:
+        for line in f:
+            if line.startswith('__version__'):
+                return eval(line.split('=')[-1])
 
 
-if USE_CYTHON:
-    extensions = cythonize(extensions)
+def get_long_description():
+    descr = []
+    for fname in 'README.rst', 'CHANGES.txt':
+        with open(fname) as f:
+            descr.append(f.read())
+    return '\n\n'.join(descr)
 
 
-class BuildFailed(Exception):
-    pass
-
-
-class ve_build_ext(build_ext):
-    # This class allows C extension building to fail.
-
-    def run(self):
-        try:
-            build_ext.run(self)
-        except (DistutilsPlatformError, FileNotFoundError):
-            raise BuildFailed()
-
-    def build_extension(self, ext):
-        try:
-            build_ext.build_extension(self, ext)
-        except (CCompilerError, DistutilsExecError,
-                DistutilsPlatformError, ValueError):
-            raise BuildFailed()
-
-
-with codecs.open(os.path.join(os.path.abspath(os.path.dirname(
-        __file__)), 'aiohttp', '__init__.py'), 'r', 'latin1') as fp:
-    try:
-        version = re.findall(r"^__version__ = '([^']+)'\r?$",
-                             fp.read(), re.M)[0]
-    except IndexError:
-        raise RuntimeError('Unable to determine version.')
-
-
-install_requires = ['chardet']
-
-if sys.version_info < (3, 4, 1):
-    raise RuntimeError("aiohttp requires Python 3.4.1+")
-
-
-def read(f):
-    return open(os.path.join(os.path.dirname(__file__), f)).read().strip()
-
-
-class PyTest(TestCommand):
-    user_options = []
-
-    def run(self):
-        import subprocess
-        import sys
-        errno = subprocess.call([sys.executable, '-m', 'pytest', 'tests'])
-        raise SystemExit(errno)
-
-
-tests_require = install_requires + ['pytest', 'gunicorn']
-
-
-args = dict(
-    name='aiohttp',
-    version=version,
-    description=('http client/server for asyncio'),
-    long_description='\n\n'.join((read('README.rst'), read('CHANGES.txt'))),
-    classifiers=[
-        'License :: OSI Approved :: Apache Software License',
-        'Intended Audience :: Developers',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Topic :: Internet :: WWW/HTTP'],
-    author='Nikolay Kim',
-    author_email='fafhrd91@gmail.com',
-    maintainer='Andrew Svetlov',
-    maintainer_email='andrew.svetlov@gmail.com',
-    url='https://github.com/KeepSafe/aiohttp/',
-    license='Apache 2',
-    packages=['aiohttp'],
-    install_requires=install_requires,
-    tests_require=tests_require,
+setup(
+    name='pep8',
+    version=get_version(),
+    description="Python style guide checker",
+    long_description=get_long_description(),
+    keywords='pep8',
+    author='Johann C. Rocholl',
+    author_email='johann@rocholl.net',
+    url='http://pep8.readthedocs.org/',
+    license='Expat license',
+    py_modules=['pep8'],
+    namespace_packages=[],
     include_package_data=True,
-    ext_modules=extensions,
-    cmdclass=dict(build_ext=ve_build_ext,
-                  test=PyTest))
-
-try:
-    setup(**args)
-except BuildFailed:
-    print("************************************************************")
-    print("Cannot compile C accelerator module, use pure python version")
-    print("************************************************************")
-    del args['ext_modules']
-    del args['cmdclass']
-    setup(**args)
+    zip_safe=False,
+    install_requires=[
+        # Broken with Python 3: https://github.com/pypa/pip/issues/650
+        # 'setuptools',
+    ],
+    entry_points={
+        'console_scripts': [
+            'pep8 = pep8:_main',
+        ],
+    },
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
+    test_suite='testsuite.test_all.suite',
+)
